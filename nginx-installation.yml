@@ -1,0 +1,53 @@
+--- #NGINX Installtion
+- hosts: dev
+  user: ansible
+  become: yes
+  connection: ssh
+  tasks:
+    - name: nginx installation
+      yum:
+        name: nginx
+        state: present
+
+    - name: starting the nginx service
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: installing git 
+      raw: yum install git -y
+
+    - name: creating dir for project
+      file:
+        dest: /home/ansible/temp
+        state: directory
+
+    - name: cloning project
+      ansible.builtin.git:
+        repo: https://github.com/Manibabu-git/Ansible-Projects.git
+        dest: /home/ansible/temp
+        version: main
+        clone: yes
+        update: yes
+        force: yes  # it will clone again if project already cloned
+
+#    - name: unzip the project
+#      shell: unzip -o /home/ansible/temp/*.zip # -o will override the files if  already exists same files so script will not ask ques for replace y? or no
+
+    - name: remove existing index.html
+      file:
+        dest: /usr/share/nginx/html/index.html
+        state: absent
+
+    - name: copy index.html file to nginx
+      copy:
+        src: /home/ansible/temp/index.html
+        dest: /usr/share/nginx/html/
+        remote_src: yes        #If you're copying a file from remote → remote, you must use
+
+    - name: restart the nginx server
+      systemd:
+        name: nginx
+        state: restarted
+...
