@@ -1,0 +1,7 @@
+--- #jenkins installtion and setup 
+- hosts: localhost
+  user: ansible
+  become: yes
+  roles:
+    - java-installation
+    - install-jenkins
